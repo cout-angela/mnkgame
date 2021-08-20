@@ -359,29 +359,17 @@ public class PaperPlayer implements MNKPlayer {
 
 	//////// -- AGGIORNAMENTO -- ////////
 
-	public MNKGameState updateSquaredBoard(int row, int col, int mark) {
+	public void updateSquaredBoard(int row, int col, int mark) {
 		int friendly = (mark == -10) ? 0 : 1;
 		int enemy = (friendly + 1) % 2;
 		int enemyMark = (mark == -10) ? -20 : -10;
 		int enemySymbols = 0;
-		boolean win = true;
-		boolean draw = true;
-		//mark the board (potrebbe non funzionare)
-		helpBoard[row][col] = mark;
 
 		// aggiustiamo horizontal
 		if (hasMark[friendly][row] && !(hasMark[enemy][row])) {
 			for (int j = 0; j < k; j++) {
 				if (helpBoard[row][j] >= 0) {
-					win = false;
 					helpBoard[row][j] = helpBoard[row][j] + 1;
-				}
-			}
-			if(win){
-				if(friendly == -10){
-					return MNKGameState.WINP1;
-				}else{
-					return MNKGameState.WINP2;
 				}
 			}
 		} else if (hasMark[enemy][row] && !(hasMark[friendly][row])) {
@@ -407,15 +395,7 @@ public class PaperPlayer implements MNKPlayer {
 		if (hasMark[friendly][column] && !(hasMark[enemy][column])) {
 			for (int i = 0; i < k; i++) {
 				if (helpBoard[i][col] >= 0) {
-					win = false;
 					helpBoard[i][col] = helpBoard[i][col] + 1;
-				}
-			}
-			if(win){
-				if(friendly == -10){
-					return MNKGameState.WINP1;
-				}else{
-					return MNKGameState.WINP2;
 				}
 			}
 		} else if (hasMark[enemy][column] && !(hasMark[friendly][column])) {
@@ -442,15 +422,7 @@ public class PaperPlayer implements MNKPlayer {
 			if (hasMark[friendly][diagonal] && !(hasMark[enemy][diagonal])) {
 				for (int i = 0; i < k; i++) {
 					if (helpBoard[i][i] >= 0) {
-						win = false;
 						helpBoard[i][i] = helpBoard[i][i] + 1;
-					}
-				}
-				if(win){
-					if(friendly == -10){
-						return MNKGameState.WINP1;
-					}else{
-						return MNKGameState.WINP2;
 					}
 				}
 			} else if (hasMark[enemy][diagonal] && !(hasMark[friendly][diagonal])) {
@@ -478,15 +450,7 @@ public class PaperPlayer implements MNKPlayer {
 			if (hasMark[friendly][adiagonal] && !(hasMark[enemy][adiagonal])) {
 				for (int i = 0; i < k; i++) {
 					if (helpBoard[i][k - 1 - i] >= 0) {
-						win = false;
 						helpBoard[i][k - 1 - i] = helpBoard[i][k - 1 - i] + 1;
-					}
-				}
-				if(win){
-					if(friendly == -10){
-						return MNKGameState.WINP1;
-					}else{
-						return MNKGameState.WINP2;
 					}
 				}
 			} else if (hasMark[enemy][adiagonal] && !(hasMark[friendly][adiagonal])) {
@@ -508,18 +472,7 @@ public class PaperPlayer implements MNKPlayer {
 			hasMark[friendly][adiagonal] = true;
 		}
 
-		//controlla se è draw
-		int i = 0;
-		while(draw && (i < (2 * k + 2))){
-			draw = draw && hasMark[0][i] && hasMark[1][i];
-			i = i + 1;
-		}
-		if(draw){
-			return MNKGameState.DRAW;
-		}else{
-			return MNKGameState.OPEN;
-		}
-
+		helpBoard[row][col] = mark;
 	}
 
 	public void updateBoard(int row, int col, int mark) {
@@ -676,8 +629,6 @@ public class PaperPlayer implements MNKPlayer {
 		private Node parent;
 		private List<Node> children;
 		private float eval;
-		private MNKGameState stat;	//ad ogni updateSquareBoard() controllare riga, colonna e diagonali per determinare lo stato
-									//OPEN , DRAW , WINP1 = paper won , WINP2 = enemy won
 
 		// COSTRUTTORE
 		public Node(int[][] b, boolean[][] hM, Node p) {
@@ -685,7 +636,6 @@ public class PaperPlayer implements MNKPlayer {
 			this.hasMark = hM;
 			this.parent = p;
 			this.children = new ArrayList<Node>();
-			this.stat = MNKGameState.OPEN;
 		}
 
 		// SETTERS
@@ -736,6 +686,10 @@ public class PaperPlayer implements MNKPlayer {
 			}
 			
 			return (tmp);
+		}
+
+		public boolean isGameOpen(int[][] b){	//////// DA FARE USANDO HAS MARK PER VEDERE SE LA PARTITA è VINTA PERSA PATTA O APERTA
+
 		}
 
 		// ritorna true se il nodo è una foglia

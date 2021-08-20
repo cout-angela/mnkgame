@@ -40,7 +40,6 @@ public class AlphaBetaPlayer  implements MNKPlayer {
 		private Node parent;
 		private List<Node> children;
 		private float eval;
-	
 
 		//COSTRUTTORE
 		public Node(MNKBoard b, Node p){

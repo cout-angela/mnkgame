@@ -32,3 +32,7 @@ MNKPlayerTester application:
 
 
 	java -cp ".." mnkgame.MNKPlayerTester 5 5 4 mnkgame.RandomPlayer mnkgame.QuasiRandomPlayer -v -t 1 -r 10
+	
+	
+	
+	Aggiornare UpdateSquareBoard tenendo conto di tenere aggiornato lo stato e la bestCell

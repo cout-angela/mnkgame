@@ -364,6 +364,8 @@ public class PaperPlayer implements MNKPlayer {
 		int enemy = (friendly + 1) % 2;
 		int enemyMark = (mark == -10) ? -20 : -10;
 		int enemySymbols = 0;
+		// mark the board (potrebbe non funzionare)
+		helpBoard[row][col] = mark;
 
 		// aggiustiamo horizontal
 		if (hasMark[friendly][row] && !(hasMark[enemy][row])) {
@@ -472,151 +474,7 @@ public class PaperPlayer implements MNKPlayer {
 			hasMark[friendly][adiagonal] = true;
 		}
 
-		helpBoard[row][col] = mark;
 	}
-
-	public void updateBoard(int row, int col, int mark) {
-		int enemyMark = (mark == -20) ? -10 : -20;
-		helpBoard[row][col] = mark;
-		helpBoard[row][col + 1] = mark;
-		helpBoard[row - 1][col] = enemyMark;
-		LinkedList<MNKCell> updateList = new LinkedList<MNKCell>();
-		LinkedList<MNKCell> updateEnemyList = new LinkedList<MNKCell>();
-		int fullWindow = 0;
-		int w = 0, wenemy = 0;
-		int i = 0;
-		int j = 0;
-
-		int iStart = max(0, row - (k - 1));
-		int jStart = max(0, col - (k - 1));
-		int iEnd = min(m - 1, row + (k - 1));
-		int jEnd = min(n - 1, col + (k - 1));
-
-		// horizontal points adjustment for friendly mark
-		j = col + 1;
-		w = col - 1;
-		while (j <= jEnd && helpBoard[row][j] != enemyMark) {
-			j = j + 1;
-		}
-		j = j - 1;
-		while (w >= jStart && helpBoard[row][w] != enemyMark) {
-			w = w - 1;
-		}
-		w = w + 1;
-		if (j - w >= (k - 1)) {
-			while (w <= j) {
-				if (helpBoard[row][w] >= 0) {
-					helpBoard[row][w] = helpBoard[row][w] + 1;
-				}
-				w = w + 1;
-			}
-		}
-
-		// horizontal points adjustment for enemy mark
-		j = col + 1;
-		w = col - 1;
-		while (j <= jEnd && helpBoard[row][j] != mark) {
-			j = j + 1;
-		}
-		j = j - 1;
-		while (w >= jStart && helpBoard[row][w] != mark) {
-			w = w - 1;
-		}
-		w = w + 1;
-
-		fullWindow = j - w;
-		if (fullWindow >= k - 1) {
-			int maxMeno = min(fullWindow - (k - 1), k);
-			i = 1;
-			while (w < j) {
-				if (helpBoard[row][w] >= 0) {
-					helpBoard[row][w] = helpBoard[row][w] - i;
-
-				}
-				if (helpBoard[row][j] >= 0) {
-					helpBoard[row][j] = helpBoard[row][j] - i;
-
-				}
-				w = w + 1;
-				j = j - 1;
-				if (i < maxMeno) {
-					i = i + 1;
-				}
-
-			}
-			if (w == j && helpBoard[row][w] >= 0) {
-				helpBoard[row][w] = helpBoard[row][w] - i;
-
-			}
-		}
-
-		// vertical points adjustment for friendly mark
-		i = row + 1;
-		w = row - 1;
-		while (i <= iEnd && helpBoard[i][col] != enemyMark) {
-			i = i + 1;
-		}
-		i = i - 1;
-		while (w >= iStart && helpBoard[w][col] != enemyMark) {
-			w = w - 1;
-		}
-		w = w + 1;
-		if (i - w >= (k - 1)) {
-			while (w <= i) {
-				if (helpBoard[w][col] >= 0) {
-					helpBoard[w][col] = helpBoard[w][col] + 1;
-				}
-				w = w + 1;
-			}
-		}
-
-		// vertical points adjustment for enemy mark
-		i = row + 1;
-		w = row - 1;
-		while (i <= iEnd && helpBoard[i][col] != mark) {
-			i = i + 1;
-		}
-		i = i - 1;
-		while (w >= iStart && helpBoard[w][col] != mark) {
-			w = w - 1;
-		}
-		w = w + 1;
-		fullWindow = i - w;
-		if (fullWindow >= k - 1) {
-			int maxMeno = min(fullWindow - (k - 1), k);
-			j = 1;
-			while (w < i) {
-				if (helpBoard[w][col] >= 0) {
-					helpBoard[w][col] = helpBoard[w][col] - j;
-
-				}
-				if (helpBoard[i][col] >= 0) {
-					helpBoard[i][col] = helpBoard[i][col] - j;
-
-				}
-				w = w + 1;
-				i = i - 1;
-				if (j < maxMeno) {
-					j = j + 1;
-				}
-
-			}
-			if (w == i && helpBoard[w][col] >= 0) {
-				helpBoard[w][col] = helpBoard[w][col] - j;
-
-			}
-		}
-	}
-	/*
-	 * 
-	 * 
-	 * MNKCell tmp = new MNKCell(row, j, MNKCellState.P1); if (value != mark){
-	 * updateList.add(tmp); updateEnemyList.add(tmp); }else{ if(j != col) {
-	 * updateEnemyList.clear(); wenemy = j + 1; } }
-	 * 
-	 * 
-	 * 
-	 */
 
 	//////// -- END AGGIORNAMENTO -- ////////
 
@@ -625,7 +483,7 @@ public class PaperPlayer implements MNKPlayer {
 	public class Node {
 		public int[][] board;
 		public boolean[][] hasMark; // i = 0 is friendly, i = 1 is enemy; [0...k-1] j = rows, [k...2k-1] j = cols,
-							// [2k] j = diagonal, [2k+1] j = adiagonal;
+		// [2k] j = diagonal, [2k+1] j = adiagonal;
 		private Node parent;
 		private List<Node> children;
 		private float eval;
@@ -673,23 +531,28 @@ public class PaperPlayer implements MNKPlayer {
 					tmp[i][j] = b[i][j];
 				}
 			}
-			
+
 			return (tmp);
 		}
 
 		// fa una copia di hasMark che riceve in input e la ritorna
 		public boolean[][] copyHasMark(boolean[][] hM) {
 			boolean[][] tmp = new boolean[m][n];
-			for (int j = 0; j < (2*k + 2); j++) {
+			for (int j = 0; j < (2 * k + 2); j++) {
 				tmp[0][j] = b[0][j];
 				tmp[1][j] = b[1][j];
 			}
-			
+
 			return (tmp);
 		}
 
-		public boolean isGameOpen(int[][] b){	//////// DA FARE USANDO HAS MARK PER VEDERE SE LA PARTITA è VINTA PERSA PATTA O APERTA
+		public boolean calcGameState() {
+			boolean draw = true;
+			int i = 0;
 
+			while(draw && i < (2 * k + 2)){
+				
+			}
 		}
 
 		// ritorna true se il nodo è una foglia
@@ -703,14 +566,14 @@ public class PaperPlayer implements MNKPlayer {
 
 		// da un valore float in base allo stato della board del nodo chiamante
 		public float evalNode(boolean mynode) {
-			MNKGameState tmp = this.board.gameState();
-			if (tmp == MNKGameState.OPEN) {
+			MNKGameState tmp = this.calcGameState();
+			if (tmp == MNKGameState.OPEN) { // ritornare il valore migliore della miglior cella della helpboard
 				this.eval = 0;
 				return (0);
-			} else if (tmp == MNKGameState.DRAW) {
+			} else if (tmp == MNKGameState.DRAW) { // ritornare qualcosa
 				this.eval = 5;
 				return (5);
-			} else if (tmp == MNKGameState.WINP1) {
+			} else if (tmp == MNKGameState.WINP1) { // valore alto(?)
 				// if(mynode == true){
 				this.eval = 10;
 				return (10);
@@ -718,7 +581,7 @@ public class PaperPlayer implements MNKPlayer {
 				// this.eval = -10;
 				// return(-10);
 				// }
-			} else {
+			} else { // valore basso(?)
 				// if(mynode == false){
 				this.eval = -10;
 				return (-10);
@@ -737,7 +600,7 @@ public class PaperPlayer implements MNKPlayer {
 
 		// genera i figli di un nodo in base alle posizioni vuote della sua board
 		public void generateChildren(Integer h) {
-			if (h > 0 && isGameOpen(this.board)) {
+			if (h > 0 && this.calcGameState() == MNKGameState.OPEN) {
 				for (int i = 0; i < m; i++) {
 					for (int j = 0; j < n; j++) {
 						if (this.board[i][j] >= 0) {

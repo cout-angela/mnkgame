@@ -1,0 +1,9 @@
+- if we go first, then for the first move we return the center most cell
+
+- in m = n = k, usando hasMark possiamo vedere intere righe, colonne e diagonali in cui non c'è bisogno di controllare se sta per esserci un tris
+
+- spaccare la griglia per griglie più grandi
+
+- avere la helpboard noramle ed un grafo contenente tutti i simboli e negli archi contiene le distanze, in modo da rendere veloce il calcolo di simboli per righe colonne e diagonali (applicabile anche su board di grandezza generale n != m != k)
+
+- mettere le tre migliori moves in bestMove in modo da non doverle cercare quando si fanno i figli in alphabeta nodes

@@ -1,8 +1,8 @@
 /*
  *  Copyright (C) 2021 Pietro Di Lena
- *  
+ *
  *  This file is part of the MNKGame v2.0 software developed for the
- *  students of the course "Algoritmi e Strutture di Dati" first 
+ *  students of the course "Algoritmi e Strutture di Dati" first
  *  cycle degree/bachelor in Computer Science, University of Bologna
  *  A.Y. 2020-2021.
  *
@@ -27,7 +27,7 @@ import java.util.Random;
 /**
  * Software player only a bit smarter than random.
  * <p> It can detect a single-move win or loss. In all the other cases behaves randomly.
- * </p> 
+ * </p>
  */
 public class QuasiRandomPlayer implements MNKPlayer {
 	private Random rand;
@@ -45,18 +45,18 @@ public class QuasiRandomPlayer implements MNKPlayer {
 
 	public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
 		// New random seed for each game
-		rand    = new Random(System.currentTimeMillis()); 
+		rand    = new Random(System.currentTimeMillis());
 		B       = new MNKBoard(M,N,K);
-		myWin   = first ? MNKGameState.WINP1 : MNKGameState.WINP2; 
+		myWin   = first ? MNKGameState.WINP1 : MNKGameState.WINP2;
 		yourWin = first ? MNKGameState.WINP2 : MNKGameState.WINP1;
-		TIMEOUT = timeout_in_secs;	
+		TIMEOUT = timeout_in_secs;
 	}
 
 	/**
 	 * Selects a position among those listed in the <code>FC</code> array.
    * <p>
    * Selects a winning cell (if any) from <code>FC</code>, otherwise
-   * selects a cell (if any) that prevents the adversary to win 
+   * selects a cell (if any) that prevents the adversary to win
    * with his next move. If both previous cases do not apply, selects
    * a random cell in <code>FC</code>.
 	 * </p>
@@ -70,8 +70,8 @@ public class QuasiRandomPlayer implements MNKPlayer {
 		// If there is just one possible move, return immediately
 		if(FC.length == 1)
 			return FC[0];
-		
-		// Check whether there is single move win 
+
+		// Check whether there is single move win
 		for(MNKCell d : FC) {
 			// If time is running out, select a random cell
 			if((System.currentTimeMillis()-start)/1000.0 > TIMEOUT*(99.0/100.0)) {
@@ -79,34 +79,34 @@ public class QuasiRandomPlayer implements MNKPlayer {
 				B.markCell(c.i,c.j);
 				return c;
 			} else if(B.markCell(d.i,d.j) == myWin) {
-				return d;  
+				return d;
 			} else {
-				B.unmarkCell();
+			B.unmarkCell();
 			}
 		}
-		
+
 		// Check whether there is a single move loss:
 		// 1. mark a random position
 		// 2. check whether the adversary can win
-		// 3. if he can win, select his winning position 
-		int pos   = rand.nextInt(FC.length); 
+		// 3. if he can win, select his winning position
+		int pos   = rand.nextInt(FC.length);
 		MNKCell c = FC[pos]; // random move
-		B.markCell(c.i,c.j); // mark the random position	
+		B.markCell(c.i,c.j); // mark the random position
 		for(int k = 0; k < FC.length; k++) {
 			// If time is running out, return the randomly selected  cell
       if((System.currentTimeMillis()-start)/1000.0 > TIMEOUT*(99.0/100.0)) {
 				return c;
-			} else if(k != pos) {     
+			} else if(k != pos) {
 				MNKCell d = FC[k];
 				if(B.markCell(d.i,d.j) == yourWin) {
 					B.unmarkCell();        // undo adversary move
-					B.unmarkCell();	       // undo my move	 
+					B.unmarkCell();	       // undo my move
 					B.markCell(d.i,d.j);   // select his winning position
 					return d;							 // return his winning position
 				} else {
 					B.unmarkCell();	       // undo adversary move to try a new one
-				}	
-			}	
+				}
+			}
 		}
 		// No win or loss, return the randomly selected move
 		return c;

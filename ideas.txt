@@ -1,0 +1,72 @@
+- if we go first, then for the first move we return the center most cell (or do we? in 3 3 3 there is literally no way of winning by starting in the centermost position, but if we are the second player, there's no way of getting a draw if we DON'T start in the centermost cell)
+    - going first
+        general strategy:
+            every first player strategy in tris looks a lot like this "capture the sides and then end with the center", because laying down pieces on the sides can
+            actually create more chances to link a tris than using the middle, which is usually left for the end of the game in order to connect the captured positions
+        choosing center:
+            in normal tris, if the opponent is a perfect player or just paperplayer, there is literally no way for us to win if our first move is the center 
+        choosing sides:
+            in normal tris, this opens up lots of chances to make tris and requires a very specific path of action from the second player in order to end the game in a draw
+    - going second
+        general strategy:
+            every second player strategy in tris looks a lot like this "capture the center and demolish every first player's move or strategy by looking ahead"
+        choosing center:
+            in normal tris, against a perfect first player, the only way of ending the game in a draw is by choosing the center as a first move
+        choosing sides:
+            in normal tris, against a perfect first player, choosing sides means losing immediately in 4 to 5 moves
+
+
+problemi di alphabeta:
+    - molto ma molto costoso alla prima creazione dell'albero, dal secondo turno in poi il costo scende
+        esempio 3 3 3
+            se al primo turno facciamo un albero prof 5 avremo da creare un totale di 1(la radice) + 9 + 9*8 + 9*8*7 + 9*8*7*6 + 9*8*7*6*5 nodi;
+            al secondo turno la radice si sposta e terremo in memoria solo 1(la nuova radice) + 8 + 8*7 + 8*7*6 + 8*7*6*5 + l'ultimo livello da creare a sto turno, cioe' solo 8*7*6*5*4 nodi, tutti gli altri li avevamo dal turno prima
+        generalizzando solo il numero di nodi da creare e non tutti quelli da tenere a mente
+            se vogliamo avere sempre un albero di profondita' h in una board m*n = x; chiamero' ogni moltiplicazione "passo"
+                al primo turno dobbiamo calcolare
+                    x + x*(x-1) + x*(x-1)*(x-2) + x*(x-1)*(x-2)*(x-3) + ... finche' non facciamo h passi o la sottrazione delle x non raggiunge 1, nodi
+                al secondo turno
+                    il prossimo passo e lo dividiamo per il valore piu' grande della moltiplicazione, nodi; probabilmente di meno perche' la partita puo' essere vinta o persa o patta prima di finire il numero di figli possibili da creare
+    - se non raggiungiamo almeno una foglia di vittoria subito, le foglie di gioco aperte vanno valutate dando un valore euristico
+        potremmo usare la board fatta solo di puntatori in modo da determinare se mancano poche mosse alla vittoria di uno dei due giocatori o al pareggio o simili (quella che e' una matrice ma ogni cella ha puntatori nelle 8 direzioni)
+            ogni cella contiene la distanza dalla prossima casella diversa in ogni direzione
+        dovremmo comunque inventarci un intero metodo eccetera, poi possiamo pensare a cosa ho scritto io sopra riguardo alla strategia generale di un giocatore di tris (conclusioni che ho raggiunto facendo tutti i casi possibili, ma non quelli specchiati, di tris)
+
+idee per alfabeta:
+    - assolutamente da implementare qualcosa per decidere se e' worth farlo o no, tipo calcolare quanti nodi son da fare eccetera (il primo livello sono m*n nodi, il secondo sono altri m*n*(m*n-1))
+    - creazione dinamica di piu' o meno livelli in base al tempo rimanente e al tempo richiesto per fare il livello precedente, sappiamo gia' quanto ci metteremo al massimo grazie agli svantaggi di alphabeta scritti sopra
+    - DOBBIAMO ASSOLUTAMENTE, per qualsiasi implementazione di alphabeta, usare una nostra board che ha puntatori ai simboli (ogni cella punta al simbolo piu' vicino), creare una funzione che aggiunge un mark e ritorni una lista di caselle con le loro informazioni precedenti, in modo che possiamo usare solo la board iniziale e modificarla ogni volta; in ogni nodo dell'albero a quel punto basta solo salvarsi la lista dei cambiamenti, eval e la cella da marcare per creare quel nodo (dettagli da stabilire in seguito)
+    
+    divisione per assi: 
+        Vantaggi
+        - risolve il problema principale di alphabeta illustrato sopra in questa pagina
+            esempio 3 3 3
+                numero di nodi da creare per il primo turno se si vuole raggiungere profondita' 3
+                    normalmente = 1(radice) + 9 + (9*8 = 72) + (9*8*7 = 504) = 586, per il turno successivo crei 8*7*6=336 nodi
+                    divisione assi = 1(radice) + 3 + (5+2+5=12) + ((7+7+7+4+4=29) + 4+4 + 7+7+7+4+4 = 66) = 82, per il turno successivo usando alphabeta normale crei 29*6=174 || 8*6=48 nodi
+                nel peggiore dei casi fa normale alphabeta, in piu' dopo il primo turno possiamo smettere di usarlo interamente volendo
+        Svantaggi
+            - per le board con m != n esistono solo gli assi orizzontale e verticale
+        Dettagli da vedere per poter implementare o cose da ricordare
+            - figurare out come decidere quali nodi creare in base agli assi rispettati dalla board attuale (usare il file su drive come aiuto)
+            - figurare out come applicare la trasformazione sulla cella marcata ricevuta da aggiornare in alphabeta (il calcolo in se' risulta poco costoso)
+    
+    fare i figli man mano che alphabeta avanza:
+        2 modi
+            fare tutti i figli per le mosse nemiche:
+                Vantaggi
+                    lavorera' sempre meglio di alphabeta e creazione dell'albero separati, senza dubbio, ma non so di quanto migliori magari rispetto ad alphabeta vero, van fatte delle prove; se il miglioramento e' buono allora cista, di sicuro non sara' mai peggio
+                Svantaggi
+                    non me ne vengono in mente al momento, ma principalmente il fatto che non credo sia un miglioramento gigante
+                Dettagli da vedere per poter implementare o cose da ricordare
+                    da vedere se ha senso usando dei bei calcoli e facendo delle belle prove
+                    alphabeta, nella fase di creazione di un figlio prima di visitarlo, deve controllare che non esista gia'
+
+            fare alphabeta per tutti i figli, anche quelli nemici:
+                Vantaggi
+                    lavorera' con ancora meno figli della sua versione gemella, ma comunque non so se sara' un miglioramento gigante rispetto ad alphabeta classico
+                Svantaggi
+                    porta dietro il problema principale di alphabeta, peggiorandolo, cioe' che se il nemico non sceglie una delle strade create da noi dobbiamo rifare tutto l'albero a prescindere fino a profondita' scelta da noi da zero
+                Dettagli da vedere per poter implementare o cose da ricordare
+                    da vedere se ha senso usando dei bei calcoli e facendo delle belle prove
+                    alphabeta, nella fase di creazione di un figlio prima di visitarlo, deve controllare che non esista gia'
